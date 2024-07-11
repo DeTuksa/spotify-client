@@ -14,6 +14,11 @@ async fn main() {
     match auth::get_access_token(&client_id, &client_secret).await {
         Ok(token) => {
             println!("Access token: {}", token);
+
+            match auth::get_user_profile(&token).await {
+                Ok(profile) => println!("User profile is {:?}", profile),
+                Err(e) => eprintln!("Error getting user profile {}", e)
+            }
         },
         Err(e) => eprintln!("Error getting access token: {}", e)
     }
