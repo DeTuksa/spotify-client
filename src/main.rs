@@ -1,25 +1,19 @@
-use std::env;
+use std::net::TcpListener;
+use spotify_client::{configuration::get_configuration, startup::run};
 use tokio;
 use dotenv::dotenv;
 
 mod auth;
+mod routes;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> std::io::Result<()> {
     dotenv().ok();
+
+    let configuration = get_configuration().expect("Failed to read configuration");
+
+    let address = format!("127.0.0.1:{}", configuration.application_port);
+    let listen = TcpListener::bind(address)?;
     
-    let client_id = env::var("SPOTIFY_CLIENT_ID").expect("SPOTIFY_CLIENT_ID not set");
-    let client_secret = env::var("SPOTIFY_CLIENT_SECRET").expect("SPOTIFY_CLIENT_SECRET not set");
-
-    match auth::get_access_token(&client_id, &client_secret).await {
-        Ok(token) => {
-            println!("Access token: {}", token);
-
-            match auth::get_user_profile(&token).await {
-                Ok(profile) => println!("User profile is {:?}", profile),
-                Err(e) => eprintln!("Error getting user profile {}", e)
-            }
-        },
-        Err(e) => eprintln!("Error getting access token: {}", e)
-    }
+    run(listen)?.await
 }

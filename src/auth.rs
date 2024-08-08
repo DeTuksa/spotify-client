@@ -1,5 +1,6 @@
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
+use std::env;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct TokenResponse {
@@ -8,16 +9,17 @@ struct TokenResponse {
     expires_in: u64
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct UserProfile {
     display_name: Option<String>,
     id: Option<String>,
     email: Option<String>
 }
 
-pub async fn get_access_token(
-    client_id: &str,
-    client_secret: &str) -> Result<String, Box<dyn std::error::Error>> {
+pub async fn get_access_token() -> Result<String, Box<dyn std::error::Error>> {
+    let client_id = env::var("SPOTIFY_CLIENT_ID").expect("SPOTIFY_CLIENT_ID not set");
+    let client_secret = env::var("SPOTIFY_CLIENT_SECRET").expect("SPOTIFY_CLIENT_SECRET not set");
+
     let client = Client::new();
     let params = [
         ("grant_type", "client_credentials")
