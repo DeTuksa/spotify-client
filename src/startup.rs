@@ -13,6 +13,7 @@ pub fn run(listener: TcpListener, auth_manager: Arc<AuthManager>) -> Result<Serv
         App::new()
         .app_data(web::Data::new(auth_manager.clone()))
         .service(routes::get_user_profile)
+        .service(routes::search_song)
     }).listen(listener)?.run();
     Ok(server)
 }
